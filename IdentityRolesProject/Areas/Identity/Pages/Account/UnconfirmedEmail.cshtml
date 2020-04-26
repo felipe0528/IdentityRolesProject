@@ -1,0 +1,37 @@
+﻿@page "{userId}"
+@model UnconfirmedEmailModel
+@{
+    ViewData["Title"] = "ReConfirm Your Email";
+}
+@section Head {
+    <script src='https://www.google.com/recaptcha/api.js?render=@ReCaptcha.Value.SiteKey'></script>
+}
+
+<h2>@ViewData["Title"]</h2>
+<h4>Enter your email.</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <p>An Email will be send to <b>@Model.Input.Email on Submit</b></p>
+            <p>If this email its not correct contact Help, or create a new account</p>
+            <input type="hidden" asp-for="Input.Email"  />
+            <input type="hidden" asp-for="Input.ReCaptchaToken" />
+            <button type="submit" class="btn btn-primary">Submit Code</button>
+        </form>
+    </div>
+</div>
+        
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        grecaptcha.ready(function () {
+            grecaptcha.execute('@ReCaptcha.Value.SiteKey', {action: '@(ViewData["Title"].ToString().Replace(" ", ""))'}).then(function(token) {
+                $('#Input_ReCaptchaToken').val(token);
+            });
+        });
+    </script>
+}
