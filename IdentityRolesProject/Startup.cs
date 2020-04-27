@@ -21,17 +21,24 @@ namespace IdentityRolesProject
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            _env = env;
         }
 
+        private readonly IWebHostEnvironment _env;
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            if (_env.IsDevelopment())
+                services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                   Configuration.GetConnectionString("LocalConnection")));
+            else
+                services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
@@ -149,7 +156,7 @@ namespace IdentityRolesProject
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-
+            db.Database.Migrate();
             SeedData.SeedAsync(userManager, roleManager, seedDataValues, db).Wait();
         }
     }
